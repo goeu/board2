@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="org.naruto.dao.BoardMapper">
+ 	<insert id="insert">
+ 		insert into tbl_board(bno,title,content,writer)
+ 		values(seq_board.nextval, #{title},#{content}, #{writer} ) <!-- getWrite 동작 -->
+ 	</insert>
+ 	<select id="select" resultType="org.naruto.domain.BoardVO">
+ 		select * from tbl_board where bno = #{bno}
+ 	</select>
+ 	<select id="selectList" resultType="org.naruto.domain.BoardVO">
+ 	<![CDATA[
+ 		select * from
+        (
+       select
+  rownum rn,bno,title,content,writer,regdate,updatedate, cnt
+from
+  (
+    select
+     bno,title,content,writer,regdate,updatedate,count(bno) over() cnt
+    from tbl_board
+    order by 1 desc)
+    where rownum <= (
+    #{page} * #{amount}
+    )
+  )
+where rn > (#{page} -1) * #{amount}
+ 	]]>
+ 	</select>
+ <select id="getCount" resultType="int">
+ 	select count(*) from tbl_board
+ </select>
+ </mapper>
